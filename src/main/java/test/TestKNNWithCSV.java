@@ -1,8 +1,10 @@
 package test;
 
-import nuronx.utils.FileUtils;
-import nuronx.supervised.classification.KNNClassifier;
 import java.util.*;
+
+import neuronx.supervised.classification.KNNClassifier;
+import neuronx.utils.FileUtils;
+
 import java.io.*;
 
 public class TestKNNWithCSV {

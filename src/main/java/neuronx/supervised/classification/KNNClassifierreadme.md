@@ -10,7 +10,7 @@ This example mimics `scikit-learn`’s structure and works with any numeric data
 
 ```
 
-nuronx/
+neuronx/
 ├── supervised/
 │   └── classification/
 │       └── KNNClassifier.java
@@ -62,6 +62,7 @@ System.out.println("Predicted class: " + result);
 ```
 ✅ Model trained with 4 samples. (k=3)
 Predicted class: A
+
 ```
 
 ---
@@ -73,9 +74,12 @@ This example demonstrates **how to train and predict** using data from a CSV fil
 ```java
 package test;
 
-import nuronx.utils.FileUtils;
-import nuronx.supervised.classification.KNNClassifier;
+
+import neuronx.utils.FileUtils;
+
+import neuronx.supervised.classification.KNNClassifier;
 import java.util.*;
+
 
 public class TestKNNWithCSV {
     public static void main(String[] args) {

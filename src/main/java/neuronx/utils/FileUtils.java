@@ -1,4 +1,4 @@
-package nuronx.utils;
+package neuronx.utils;
 
 import java.io.*;
 import java.util.*;

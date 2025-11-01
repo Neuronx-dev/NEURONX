@@ -1,4 +1,4 @@
-package nuronx.supervised.classification;
+package neuronx.supervised.classification;
 
 import java.util.*;
 
@@ -89,6 +89,7 @@ public class KNNClassifier {
     }
 
     // === Example usage ===
+
     public static void main(String[] args) {
         // Example dataset
         List<double[]> X_train = Arrays.asList(
