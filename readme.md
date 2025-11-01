@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # NEURONX
 
 Lightweight project scaffold for "neuronx". This repository contains source and assets for a small application/library with a focus on modular structure, easy development and clear separation of concerns.
@@ -6,3 +7,8 @@ Lightweight project scaffold for "neuronx". This repository contains source and 
 
 
 
+=======
+# nuronx
+
+Lightweight project scaffold for "neuronx". This repository contains source and assets for a small application/library with a focus on modular structure, easy development and clear separation of concerns.
+>>>>>>> d0d4ef9 (update readme files)
