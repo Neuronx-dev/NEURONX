@@ -6,7 +6,7 @@
 ### 📦 Package
 
 ```java
-package nuronx.utils;
+package neuronx.utils;
 ```
 
 ---
@@ -76,7 +76,7 @@ Used when your dataset **has no labels** (only features).
 ### 🧩 Step 1 — Import the class
 
 ```java
-import nuronx.utils.FileUtils;
+import neuronx.utils.FileUtils;
 import java.util.*;
 ```
 
@@ -162,7 +162,7 @@ X_test[0]: 5.9 3.0 5.1 1.8 | Y_test: 1
 project/
 │
 ├── src/
-│   └── nuronx/
+│   └── neuronx/
 │       └── utils/
 │           └── FileUtils.java
 │
@@ -177,7 +177,7 @@ project/
 **In your ML project**, you can directly use it for preprocessing:
 
 ```java
-import nuronx.utils.FileUtils;
+import neuronx.utils.FileUtils;
 import java.util.*;
 
 public class KNNExample {
