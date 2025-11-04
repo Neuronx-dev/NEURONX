@@ -1,5 +1,6 @@
 package neuronx.supervised.regression;
 
+import java.io.*;
 import java.util.*;
 
 public class SimpleLinearRegression {
@@ -73,19 +74,40 @@ public class SimpleLinearRegression {
         return 1 - (ssRes / ssTot);
     }
 
+    // === Load CSV file ===
+    public static double[][] loadCSV(String filePath) {
+        List<double[]> data = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                // Skip empty or header lines
+                if (line.trim().isEmpty() || line.toLowerCase().contains("x")) continue;
+
+                String[] parts = line.split(",");
+                double x = Double.parseDouble(parts[0].trim());
+                double y = Double.parseDouble(parts[1].trim());
+                data.add(new double[]{x, y});
+            }
+        } catch (IOException e) {
+            System.out.println("❌ Error reading CSV: " + e.getMessage());
+        }
+
+        return data.toArray(new double[0][]);
+    }
+
     // === Main Function ===
     public static void main(String[] args) {
-        // Sample dataset (X, y)
-        double[][] data = {
-            {1.5, 52}, {2.3, 54}, {2.9, 62}, {3.8, 70}, {4.2, 71},
-            {4.5, 75}, {5.1, 78}, {5.5, 82}, {6.0, 89}, {6.8, 91},
-            {7.1, 94}, {8.0, 96}, {8.5, 98}, {9.2, 99}, {10.0, 100},
-            {10.5, 102}, {11.0, 104}, {11.5, 107}, {12.0, 110}, {12.5, 112}
-        };
+        String filePath = "C:\\Users\\DELL\\Desktop\\NEURONX\\dataset_SLR.csv"; // CSV should be in the same folder as src/main/java or provide full path
+        double[][] data = loadCSV(filePath);
 
-        // Shuffle data (optional for randomness)
+        if (data.length == 0) {
+            System.out.println("❌ No data found in CSV file.");
+            return;
+        }
+
+        // Shuffle data (optional)
         List<double[]> list = Arrays.asList(data);
-        Collections.shuffle(list, new Random(42)); // fixed seed for reproducibility
+        Collections.shuffle(list, new Random(42)); // reproducibility
         data = list.toArray(new double[0][]);
 
         // Split 80% train, 20% test
@@ -105,20 +127,20 @@ public class SimpleLinearRegression {
             }
         }
 
-        // Train the model
+        // Train model
         SimpleLinearRegression slr = new SimpleLinearRegression();
         slr.fit(X_train, y_train);
 
-        // Predict on test data
+        // Predict
         double[] predictions = slr.predict(X_test);
 
-        // Print predictions
+        // Print results
         System.out.println("\n--- Test Predictions ---");
         for (int i = 0; i < X_test.length; i++) {
             System.out.printf("X=%.2f → Predicted=%.2f | Actual=%.2f%n", X_test[i], predictions[i], y_test[i]);
         }
 
-        // Evaluate model
+        // Evaluate
         double mse = slr.meanSquaredError(y_test, predictions);
         double r2 = slr.score(y_test, predictions);
         System.out.printf("%nMSE: %.4f%n", mse);

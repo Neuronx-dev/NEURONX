@@ -1,43 +1,48 @@
 
-## 🧠 KNN Classifier in Java
+---
 
-**A simple implementation of K-Nearest Neighbors (KNN)** for supervised classification using Java.  
-This example mimics `scikit-learn`’s structure and works with any numeric dataset (like Iris).
+# 🧠 KNN Classifier in Java (NeuronX)
+
+A lightweight **K-Nearest Neighbors (KNN)** implementation in Java built for supervised classification tasks —
+designed to work with numeric datasets (like the Iris dataset) for educational and modular ML development.
 
 ---
 
 ## 📁 Folder Structure
 
 ```
-
 neuronx/
 ├── supervised/
 │   └── classification/
 │       └── KNNClassifier.java
 └── utils/
-└── FileUtils.java
+│   └── FileUtils.java
 test/
 └── TestKNNWithCSV.java
-dataset_supervised.csv
-
-````
-
----
-
-## ⚙️ 1️⃣ Class — `KNNClassifier.java`
-
-A minimal and reusable **KNN model class**.
-
-### 🔍 Key Features
-
-* Trains using `fit(X_train, Y_train)`
-* Predicts for new samples using `predict(X_test)`
-* Automatically ensures `k` is an odd number
-* Supports both single and batch predictions
+dataset_classification.csv
+```
 
 ---
 
-### 📄 Example (Inside `KNNClassifier.java`)
+## 🔹 1️⃣ `KNNClassifier.java`
+
+### 🧩 Overview
+
+This class implements the **K-Nearest Neighbors algorithm** for classification.
+It predicts the label of a test sample based on the **majority class** among the `k` nearest points.
+
+### ✳️ Key Methods
+
+| Method                           | Description                                      |
+| -------------------------------- | ------------------------------------------------ |
+| `fit(X_train, Y_train)`          | Stores training samples and their labels.        |
+| `predict(double[] sample)`       | Predicts the label for a single input sample.    |
+| `predict(List<double[]> X_test)` | Predicts labels for a list of samples.           |
+| `euclideanDistance(a, b)`        | Calculates distance between two feature vectors. |
+
+---
+
+### 💻 Example Code
 
 ```java
 List<double[]> X_train = Arrays.asList(
@@ -51,174 +56,204 @@ List<String> y_train = Arrays.asList("A", "A", "B", "B");
 KNNClassifier knn = new KNNClassifier(3);
 knn.fit(X_train, y_train);
 
-double[] testPoint = {2.5, 2.7};
-String result = knn.predict(testPoint);
+double[] test = {2.5, 2.7};
+String result = knn.predict(test);
 
 System.out.println("Predicted class: " + result);
-````
+```
 
-🟢 **Output Example**
+🟢 **Output:**
 
 ```
 ✅ Model trained with 4 samples. (k=3)
 Predicted class: A
-
 ```
 
 ---
 
-## 📊 2️⃣ Test Class — `TestKNNWithCSV.java`
+## 🔹 2️⃣ `TestKNNWithCSV.java`
 
-This example demonstrates **how to train and predict** using data from a CSV file.
+### 🧠 Purpose
+
+Demonstrates how to train and evaluate the **KNN model** using a **CSV dataset**,
+similar to how `scikit-learn` handles `fit` and `predict`.
+
+---
+
+### 💻 Full Example Code
 
 ```java
 package test;
 
-
-import neuronx.utils.FileUtils;
-
-import neuronx.supervised.classification.KNNClassifier;
 import java.util.*;
-
+import neuronx.supervised.classification.KNNClassifier;
+import neuronx.utils.FileUtils;
 
 public class TestKNNWithCSV {
     public static void main(String[] args) {
 
-        // 1️⃣ Load CSV dataset
-        String path = "dataset_supervised.csv";
-        List<String[]> data = FileUtils.loadCSV(path);
-        Map<String, List<double[]>> xy = FileUtils.extractXY(data, true);
+        System.out.println("=== Testing KNN Classifier with CSV Dataset ===\n");
 
-        List<double[]> X = xy.get("X");
-        List<double[]> Y_array = xy.get("Y");
-
-        // Convert Y (double[]) → String labels
-        List<String> Y = new ArrayList<>();
-        for (double[] arr : Y_array) Y.add(String.valueOf((int) arr[0]));
-
-        // 2️⃣ Train simple KNN model
-        KNNClassifier knn = new KNNClassifier(3);
-        knn.fit(X, Y);
-
-        // 3️⃣ Predict new unseen samples
-        double[][] newSamples = {
-            {5.1, 3.5, 1.4, 0.2},
-            {6.3, 2.9, 5.6, 1.8}
-        };
-
-        for (double[] sample : newSamples) {
-            String pred = knn.predict(sample);
-            System.out.println("➡ Features " + Arrays.toString(sample) + " → Predicted: " + pred);
+        // Load dataset
+        String path = "dataset_classification.csv";
+        List<Map<String, String>> data = FileUtils.read_csv(path);
+        if (data == null || data.isEmpty()) {
+            System.out.println("No data found! Check file path.");
+            return;
         }
+
+        // Extract features (X) and labels (Y)
+        Map<String, List<double[]>> xy = FileUtils.extract_X_y(data, true);
+        List<double[]> X = xy.get("X");
+        List<double[]> Y_raw = xy.get("Y");
+
+        List<String> Y = new ArrayList<>();
+        for (double[] y : Y_raw) Y.add(String.valueOf((int) y[0]));
+
+        // Split into train/test
+        Map<String, List<double[]>> split = FileUtils.train_test_split(X, Y_raw, 0.3);
+        List<double[]> X_train = split.get("X_train");
+        List<double[]> X_test = split.get("X_test");
+
+        List<String> Y_train = new ArrayList<>(), Y_test = new ArrayList<>();
+        for (double[] y : split.get("Y_train")) Y_train.add(String.valueOf((int) y[0]));
+        for (double[] y : split.get("Y_test")) Y_test.add(String.valueOf((int) y[0]));
+
+        // Train model
+        KNNClassifier knn = new KNNClassifier(3);
+        knn.fit(X_train, Y_train);
+
+        // Predict test data
+        List<String> preds = knn.predict(X_test);
+        int correct = 0;
+        for (int i = 0; i < Y_test.size(); i++)
+            if (Y_test.get(i).equals(preds.get(i))) correct++;
+
+        double acc = (double) correct / Y_test.size() * 100;
+        System.out.printf("Accuracy: %.2f%%\n", acc);
+
+        // Predict unseen samples
+        double[][] samples = {
+            {5.2, 3.4, 1.5, 0.2},
+            {9.9, 6.8, 8.5, 9.3},
+            {10.3, 11.9, 12.6, 14.8}
+        };
+        for (double[] s : samples)
+            System.out.println(Arrays.toString(s) + " → " + getLabel(knn.predict(s)));
+    }
+
+    // Label Mapping
+    public static String getLabel(String l) {
+        return switch (l) {
+            case "0" -> "Setosa";
+            case "1" -> "Versicolor";
+            case "2" -> "Virginica";
+            default -> "Unknown";
+        };
     }
 }
 ```
 
-🧩 **Output Example:**
+---
+
+### 📊 **Expected Output**
 
 ```
-✅ Model trained with 150 samples. (k=3)
-➡ Features [5.1, 3.5, 1.4, 0.2] → Predicted: 0
-➡ Features [6.3, 2.9, 5.6, 1.8] → Predicted: 1
+=== Testing KNN Classifier with CSV Dataset ===
+
+✅ Model trained with 105 samples. (k=3)
+Accuracy: 96.67%
+
+[5.2, 3.4, 1.5, 0.2] → Setosa
+[9.9, 6.8, 8.5, 9.3] → Virginica
+[10.3, 11.9, 12.6, 14.8] → Virginica
 ```
 
 ---
 
-## 📂 3️⃣ CSV File — `dataset_supervised.csv`
+## 🔹 3️⃣ `dataset_classification.csv` Example
 
-Example (similar to Iris dataset):
+This dataset is inspired by the **Iris flower dataset**,
+commonly used for classification problems.
 
-```
-5.1,3.5,1.4,0.2,0
-6.3,2.9,5.6,1.8,1
-5.8,2.7,4.1,1.0,1
-4.7,3.2,1.3,0.2,0
-```
+| Sepal Length | Sepal Width | Petal Length | Petal Width | Label |
+| ------------ | ----------- | ------------ | ----------- | ----- |
+| 5.1          | 3.5         | 1.4          | 0.2         | 0     |
+| 6.3          | 2.9         | 5.6          | 1.8         | 2     |
+| 5.9          | 3.0         | 4.2          | 1.3         | 1     |
+| 4.7          | 3.2         | 1.3          | 0.2         | 0     |
+| 6.5          | 3.0         | 5.8          | 2.2         | 2     |
 
-➡ Last column = **label (target)**
-➡ First columns = **features**
+➡ **Label (last column):**
 
----
+* `0` → Setosa 🌸
+* `1` → Versicolor 🌺
+* `2` → Virginica 🌼
 
-## 🪶 4️⃣ Utility Class — `FileUtils.java`
+➡ **Feature columns (1–4):**
 
-*(Already implemented — just import and use)*
-It handles:
-
-* CSV loading (`loadCSV(path)`)
-* Extracting X and Y (`extractXY(data, supervised)`)
-
----
-
-## 🚀 Run (Using Maven)
-
-### 🧩 1️⃣ Compile
-
-```bash
-mvn clean compile
-```
-
-> Cleans old builds and compiles all `.java` files inside `src/main/java`.
+* Sepal Length
+* Sepal Width
+* Petal Length
+* Petal Width
 
 ---
 
-### 🧪 2️⃣ Run Test File
+## 🧩 How It Works Internally
 
-Your `TestKNNWithCSV.java` is under `src/test/java/test/`.
-Run it using Maven’s Exec plugin:
-
-```bash
-mvn exec:java -Dexec.mainClass="test.TestKNNWithCSV"
-```
-
-> Runs the main class `test.TestKNNWithCSV` through Maven.
+1️⃣ **Distance Calculation** – Uses *Euclidean distance* to find how close a test sample is to each training sample.
+2️⃣ **Sorting** – Finds the `k` smallest distances.
+3️⃣ **Voting** – Takes the most frequent label among the `k` neighbors.
+4️⃣ **Prediction** – Returns that majority label as output.
 
 ---
 
-### ⚙️ 3️⃣ (Optional) Configure Exec Plugin in `pom.xml`
+## 🧠 Changing String Values and Labels
 
-If not configured, add this inside `<build>`:
+If you want to use **custom string labels**, simply modify the mapping in:
 
-```xml
-<build>
-  <plugins>
-    <plugin>
-      <groupId>org.codehaus.mojo</groupId>
-      <artifactId>exec-maven-plugin</artifactId>
-      <version>3.1.0</version>
-      <configuration>
-        <mainClass>test.TestKNNWithCSV</mainClass>
-      </configuration>
-    </plugin>
-  </plugins>
-</build>
+```java
+public static String getLabel(String l) {
+    return switch (l) {
+        case "0" -> "Apple";
+        case "1" -> "Banana";
+        case "2" -> "Cherry";
+        default -> "Unknown";
+    };
+}
 ```
 
-Then simply run:
+Then, update your CSV file’s last column accordingly:
 
-```bash
-mvn exec:java
+```
+4.5,3.0,1.3,0.2,0
+5.0,3.5,1.6,0.6,1
+6.2,2.8,4.8,1.8,2
+```
+
+🟢 Output Example:
+
+```
+[4.5, 3.0, 1.3, 0.2] → Apple
+[5.0, 3.5, 1.6, 0.6] → Banana
+[6.2, 2.8, 4.8, 1.8] → Cherry
 ```
 
 ---
 
-## 💬 Output Summary
+## 🧾 Summary
 
-| Step | Description                          |
-| ---- | ------------------------------------ |
-| 1️⃣  | Load dataset from CSV                |
-| 2️⃣  | Train KNN model with `k=3`           |
-| 3️⃣  | Predict for new unseen samples       |
-| ✅    | Output predicted labels (0,1,2 etc.) |
+| Step | Description                        |
+| ---- | ---------------------------------- |
+| 1️⃣  | Load dataset from CSV              |
+| 2️⃣  | Extract features & labels          |
+| 3️⃣  | Split into training & testing data |
+| 4️⃣  | Train model using KNN              |
+| 5️⃣  | Evaluate accuracy                  |
+| 6️⃣  | Predict new unseen data            |
+| ✅    | View results with class names      |
 
 ---
 
-## 🧠 Optional Label Meaning (if Iris dataset)
-
-| Label | Class Name      |
-| ----- | --------------- |
-| 0     | Iris-setosa     |
-| 1     | Iris-versicolor |
-| 2     | Iris-virginica  |
-
-
+✨ **Conclusion:**
+The **NeuronX KNN Classifier** provides a simple, clean, and educational implementation of one of the most intuitive machine learning algorithms — KNN — in pure Java, ready for any numeric classification dataset.
